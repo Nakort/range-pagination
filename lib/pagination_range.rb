@@ -10,7 +10,7 @@ class PaginationRange
   def initialize(header_string)
     attrs_hash = PaginationRange.parse(header_string)
     @max     = attrs_hash[:max]
-    @order     = attrs_hash[:desc]
+    @order     = attrs_hash[:order]
     @attribute = attrs_hash[:desc]
   end
 
@@ -20,8 +20,8 @@ class PaginationRange
     max, order = parse_max_order(max_order_string)
     {
       max: max,
-      order: DEFAULT_ORDER,
-      attribute: DEFAULT_ATTRIBUTE,
+      order: order,
+      attribute: DEFAULT_ATTRIBUTE
     }
   end
 
@@ -31,8 +31,10 @@ class PaginationRange
     header_string.split(",").each do |header_substring|
       max_order_hash.merge!(Rack::Utils.parse_nested_query(header_substring.strip))
     end
-    max = max_order_hash["max"].to_i
-    max = DEFAULT_MAX if max == 0
-    max
+    max   = max_order_hash["max"].to_i
+    max   = DEFAULT_MAX if max == 0
+    order = max_order_hash["order"].to_s.to_sym
+    order = DEFAULT_ORDER unless order.in?(VALID_ORDERS)
+    [max, order]
   end
 end
