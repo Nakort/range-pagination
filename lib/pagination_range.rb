@@ -1,5 +1,7 @@
 class PaginationRange
 
+  include Comparable
+
   DEFAULT_MAX                 = 200
   DEFAULT_ORDER               = :asc
   VALID_ORDERS                = [ :asc, :desc ]
@@ -17,6 +19,10 @@ class PaginationRange
     @start_identifier = attrs_hash[:start_identifier]
     @end_identifier   = attrs_hash[:end_identifier]
     @inclusive        = attrs_hash[:inclusive]
+  end
+
+  def to_header
+    "#{attribute} #{inclusive ? '' : ']'}#{start_identifier}..#{end_identifier}; max=#{max}, order=#{order}"
   end
 
   def self.parse(header_string)
@@ -71,5 +77,9 @@ class PaginationRange
     order = max_order_hash["order"].to_s.to_sym
     order = DEFAULT_ORDER unless order.in?(VALID_ORDERS)
     [max, order]
+  end
+
+  def <=>(anOther)
+    to_header <=> anOther.to_header
   end
 end

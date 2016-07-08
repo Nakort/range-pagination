@@ -10,7 +10,8 @@ describe PaginableScope do
 
   let(:collection)       { App.all }
   let(:range)            { PaginationRange.parse(header_string) }
-  let(:scope)            { PaginableScope.new(collection, range).all }
+  let(:paginable_scope)  { PaginableScope.new(collection, range) }
+  let(:scope)            { paginable_scope.all }
   let(:header_string)    { "#{attribute} #{start_identifier}..#{end_identifier};max=#{max} , order=#{order}"}
   let(:attribute)        { "name" }
   let(:start_identifier) { "my-app-10" }
@@ -93,6 +94,40 @@ describe PaginableScope do
       it "should return objects starting at that position" do
         expect(scope.map(&:id)).to eq(comparable_scope.map(&:id))
       end
+    end
+  end
+
+  context "#next_range" do
+    let(:expected_range) {
+      PaginationRange.new(
+        max: range.max,
+        order: range.order,
+        attribute: range.attribute,
+        start_identifier: scope.last.send(attribute),
+        end_identifier: nil,
+        inclusive: false
+      )
+    }
+
+    it "returns the pagination header for the current range" do
+      expect(paginable_scope.next_range).to eq(expected_range)
+    end
+  end
+
+  context "#content_range" do
+    let(:expected_range) {
+      PaginationRange.new(
+        max: range.max,
+        order: range.order,
+        attribute: range.attribute,
+        start_identifier: scope.first.send(attribute),
+        end_identifier: scope.last.send(attribute),
+        inclusive: true
+      )
+    }
+
+    it "returns the pagination header for the current range" do
+      expect(paginable_scope.content_range).to eq(expected_range)
     end
   end
 end

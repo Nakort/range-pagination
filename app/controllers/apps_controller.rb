@@ -3,7 +3,7 @@ class AppsController < ApplicationController
   after_action  :set_pagination_headers
 
   def index
-    render json: collection
+    render json: collection.all
   end
 
   private
@@ -12,12 +12,12 @@ class AppsController < ApplicationController
     @range ||= PaginationRange.parse(request.headers['Range'])
   end
 
-
   def set_pagination_headers
-
+    response.headers["Content-Range"] = collection.content_range.to_header 
+    response.headers["Next-Range"]    = collection.next_range.to_header
   end
 
   def collection
-    PaginableScope.new(App.all, range)
+    @collection ||= PaginableScope.new(App.all, range)
   end
 end
