@@ -5,20 +5,26 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version
+Install ruby 2.3.0:
 
-* System dependencies
+  rvm install 2.3.0
 
-* Configuration
+Install bundler:
 
-* Database creation
+  gem install bundler
 
-* Database initialization
+Install gems:
 
-* How to run the test suite
+  bundle install
 
-* Services (job queues, cache servers, search engines, etc.)
+Setup databases:
 
-* Deployment instructions
+  bundle exec rake db:setup
 
-* ...
+Setup sample apps:
+
+  bundle exec rake db:seed
+
+Running specs:
+
+  bundle exec rspec
