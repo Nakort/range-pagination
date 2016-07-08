@@ -26,57 +26,43 @@ class PaginationRange
   end
 
   def self.parse(header_string)
-    header_string = header_string.to_s
-    range_string, max_order_string = header_string.split(";")
-    max, order = parse_max_order(max_order_string)
-    attribute = parse_attribute(range_string)
-    start_identifier, end_identifier, inclusive = parse_range(range_string)
+    range_hash, max_order_hash = self.parse_header(header_string)
     attrs_hash = {
-      max: max,
-      order: order,
-      attribute: attribute,
-      end_identifier: end_identifier,
-      start_identifier: start_identifier,
-      inclusive: inclusive
+      max: max_for_header(max_order_hash),
+      order: order_for_header(max_order_hash),
+      attribute: attribute_for_header(range_hash),
+      end_identifier: range_hash[:end].blank? ? nil : range_hash[:end],
+      start_identifier: range_hash[:start].blank? ? nil : range_hash[:start],
+      inclusive: range_hash[:inclusive] != "]"
     }
     PaginationRange.new(attrs_hash)
   end
 
-  def self.parse_attribute(header_string)
-    header_string = header_string.to_s
-    attribute, _ = header_string.split(" ")
-    attribute = attribute.to_s.to_sym
+  private
+
+  def self.parse_header(header_string)
+    range_hash = /\A(?<attribute>.*)\s+(?<inclusive>\]|\[)?(?<start>.*)\.\.(?<end>[^;]*);?\s*(?<params>.*)\z/.match(header_string)
+    range_hash  = {:params => ""} if range_hash.blank?
+    max_order_hash = Hash[range_hash[:params].scan(/(max|order)=(\d+|\w+)?,*/)]
+    [range_hash, max_order_hash]
+  end
+
+  def self.attribute_for_header(range_hash)
+    attribute = range_hash[:attribute].to_s.to_sym
     attribute = DEFAULT_ATTRIBUTE unless attribute.in?(VALID_ATTRIBUTES)
     attribute
   end
 
-  def self.parse_range(header_string)
-    header_string = header_string.to_s
-    inclusive = true
-    _ , range = header_string.split(" ")
-    return [ nil, nil, inclusive] if range.blank?
-    start_identifier, end_identifier = range.split("..")
-    return [ nil, end_identifier, inclusive] if start_identifier.blank?
-    if start_identifier.starts_with?("]")
-      inclusive = false
-    end
-    if start_identifier.starts_with?("]") || start_identifier.starts_with?("[") 
-      start_identifier = start_identifier[1..-1]
-    end
-    [start_identifier, end_identifier, inclusive]
-  end
-
-  def self.parse_max_order(header_string)
-    header_string = header_string.to_s
-    max_order_hash = {}
-    header_string.split(",").each do |header_substring|
-      max_order_hash.merge!(Rack::Utils.parse_nested_query(header_substring.strip))
-    end
-    max   = max_order_hash["max"].to_i
-    max   = DEFAULT_MAX if max == 0 || max > DEFAULT_MAX
+  def self.order_for_header(max_order_hash)
     order = max_order_hash["order"].to_s.to_sym
     order = DEFAULT_ORDER unless order.in?(VALID_ORDERS)
-    [max, order]
+    order
+  end
+
+  def self.max_for_header(max_order_hash)
+    max = max_order_hash.fetch("max", 0).to_i
+    max = DEFAULT_MAX if max == 0 || max > DEFAULT_MAX
+    max
   end
 
   def <=>(anOther)

@@ -11,10 +11,10 @@ class PaginableScope
     return self._all if self._all
     operator = range.inclusive ? ">=" : ">"
     self._all = collection
-    if range.start_identifier
+    if range.start_identifier.present?
       self._all = _all.where("#{range.attribute} #{operator} ?", range.start_identifier)
     end
-    if range.end_identifier
+    if range.end_identifier.present?
       self._all = _all.where("#{range.attribute} <= ?", range.end_identifier)
     end
     self._all = _all.order("#{range.attribute} #{range.order}")
