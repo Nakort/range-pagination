@@ -9,7 +9,7 @@ class AppsController < ApplicationController
   private
 
   def range
-    @range ||= PaginationRange.new(request.headers['Range'])
+    @range ||= PaginationRange.parse(request.headers['Range'])
   end
 
 

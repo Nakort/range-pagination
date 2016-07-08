@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe PaginationRange do
 
-  let(:range) { PaginationRange.new(header_string) }
+  let(:range) { PaginationRange.parse(header_string) }
 
   describe "#attribute" do
     context "with nil" do

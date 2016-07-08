@@ -10,8 +10,7 @@ class PaginationRange
               :start_identifier, :end_identifier,
               :inclusive
 
-  def initialize(header_string)
-    attrs_hash        = PaginationRange.parse(header_string)
+  def initialize(attrs_hash={})
     @max              = attrs_hash[:max]
     @order            = attrs_hash[:order]
     @attribute        = attrs_hash[:attribute]
@@ -26,7 +25,7 @@ class PaginationRange
     max, order = parse_max_order(max_order_string)
     attribute = parse_attribute(range_string)
     start_identifier, end_identifier, inclusive = parse_range(range_string)
-    {
+    attrs_hash = {
       max: max,
       order: order,
       attribute: attribute,
@@ -34,6 +33,7 @@ class PaginationRange
       start_identifier: start_identifier,
       inclusive: inclusive
     }
+    PaginationRange.new(attrs_hash)
   end
 
   def self.parse_attribute(header_string)

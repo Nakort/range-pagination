@@ -9,7 +9,7 @@ describe PaginableScope do
   end
 
   let(:collection)       { App.all }
-  let(:range)            { PaginationRange.new(header_string) }
+  let(:range)            { PaginationRange.parse(header_string) }
   let(:scope)            { PaginableScope.new(collection, range).all }
   let(:header_string)    { "#{attribute} #{start_identifier}..#{end_identifier};max=#{max} , order=#{order}"}
   let(:attribute)        { "name" }
