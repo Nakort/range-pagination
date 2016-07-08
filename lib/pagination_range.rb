@@ -1,7 +1,7 @@
 class PaginationRange
 
   DEFAULT_MAX                 = 200
-  DEFAULT_ORDER               = :desc
+  DEFAULT_ORDER               = :asc
   VALID_ORDERS                = [ :asc, :desc ]
   VALID_ATTRIBUTES            = [ :id, :name  ] 
   DEFAULT_ATTRIBUTE           = :id
@@ -67,7 +67,7 @@ class PaginationRange
       max_order_hash.merge!(Rack::Utils.parse_nested_query(header_substring.strip))
     end
     max   = max_order_hash["max"].to_i
-    max   = DEFAULT_MAX if max == 0
+    max   = DEFAULT_MAX if max == 0 || max > DEFAULT_MAX
     order = max_order_hash["order"].to_s.to_sym
     order = DEFAULT_ORDER unless order.in?(VALID_ORDERS)
     [max, order]

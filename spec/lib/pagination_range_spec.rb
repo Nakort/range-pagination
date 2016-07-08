@@ -137,6 +137,13 @@ describe PaginationRange do
           expect(range.max).to eq(PaginationRange::DEFAULT_MAX)
         end
       end
+
+      context "with a higher number than the default" do
+        let(:header_string) { "name ]my-app-001..my-app-999; max=250, order=asc"}
+        it "should return the default" do
+          expect(range.max).to eq(PaginationRange::DEFAULT_MAX)
+        end
+      end
       context "with a valid one" do
         let(:header_string) { "name ]my-app-001..my-app-999; max=10, order=asc"}
 
